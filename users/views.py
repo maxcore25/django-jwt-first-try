@@ -1,11 +1,10 @@
-from django.shortcuts import render
-from rest_framework.views import APIView
-from .serializers import UserSerializer
-from rest_framework.response import Response
-from .serializers import UserSerializer
-from .models import User
 from rest_framework.exceptions import AuthenticationFailed
-import jwt, datetime
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .models import User
+from .serializers import UserSerializer
+import datetime
+import jwt
 
 
 class RegisterView(APIView):
@@ -29,10 +28,16 @@ class LoginView(APIView):
 
         payload = {
             'id': user.id,
-            'expiration': datetime.datetime.utcnow() + datetime.timedelta(minutes=1),
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1),
             'iat': datetime.datetime.utcnow()
         }
 
-        token = jwt.encode(payload, 'secret', algorithm='HS256').decode('utf-8')
+        token = jwt.encode(payload, 'secret', algorithm='HS256')
 
-        return Response({'jwt': token})
+        response = Response()
+        response.set_cookie(key='jwt', value=token, httponly=True)
+        response.data = {
+            'jwt': token
+        }
+
+        return response
