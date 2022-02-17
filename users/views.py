@@ -41,3 +41,8 @@ class LoginView(APIView):
         }
 
         return response
+
+
+class UserView(APIView):
+    def get(self, request):
+        pass
